@@ -20,7 +20,7 @@ def main():
 
     #subir un archivo con los parametros definidos
     st.sidebar.markdown("""
-    [Example CSV input file](https://raw.githubusercontent.com/dataprofessor/data/master/penguins_example.csv)
+    [Descargar Archivo csv guia](https://drive.google.com/uc?export=download&id=1n8yA0U909QKQvX9aRDIHMzveZ0GzkhQP)
     """)
     # Collects user input features into dataframe
     uploaded_file = st.sidebar.file_uploader("Upload your input excel file", type=["csv"])
