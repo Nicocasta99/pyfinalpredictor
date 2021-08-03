@@ -1,5 +1,5 @@
 #Importar librerias 
-
+import numpy as np
 import pandas as pd 
 import pickle 
 import streamlit as st 
@@ -18,10 +18,34 @@ def main():
     #Sidebar 
     st.sidebar.header('Choose parameters')
 
+    #subir un archivo con los parametros definidos
+    st.sidebar.markdown("""
+    [Example CSV input file](https://raw.githubusercontent.com/dataprofessor/data/master/penguins_example.csv)
+    """)
+    # Collects user input features into dataframe
+    uploaded_file = st.sidebar.file_uploader("Upload your input excel file", type=["csv"])
+    if uploaded_file is not None:
+     df1 = pd.read_csv(uploaded_file)
+     df1 = pd.DataFrame(df1)
+
+     df1=df1[['BIT_DEPTH', 'HKLD', 'WOB', 'TORQUE',
+       'BIT_RPM', 'PUMP', 'FLOW_OUT_PC', 'FLOW_IN', 'OVERBALANCE', 'dT',
+       'ROT_TIME', 'DESGASTE']]
+     st.write(df1)
+
+     if st.button('RUN_2'):
+
+        #Prediccion 
+            pxx= lightgbm_4.predict(df1)
+            px2=pd.DataFrame(pxx)
+            st.write(px2)
+
+    else: 
      #funcion para poner los parametros en el sidebar
-    def user_input_parameters():
+     def user_input_parameters():
 
         
+ 
         #ROP= st.sidebar.slider('ROP', 0.0, 110.3, 3.5)
         BIT_DEPTH = st.sidebar.slider('depth', 16193, 18487, 16562)
         HKLD = st.sidebar.slider('Hook Load',295.1, 488.0, 452.6)
@@ -52,37 +76,22 @@ def main():
                 }
         features = pd.DataFrame(data, index=[0])
         return features
-    df = user_input_parameters()
+     df = user_input_parameters()
 
-    #escritura de parametros seleccionados en la pagina
-    st.subheader('User Input Parameters')
-    st.write(df)
+     #escritura de parametros seleccionados en la pagina
+     st.subheader('User Input Parameters')
+     st.write(df)
+     if st.button('RUN'):
 
-    #escoger el modelo preferido
-    option = ['Lgbm_4', 'Lgbm_1']
-    model = st.sidebar.selectbox('Which model you like to use?', option)
-    
-    st.subheader('Model applied')
-    st.write(model)
-    
-    if st.button('RUN'):
-        if model == 'Lgbm_4':
-            
-            #Prediccion 
+        #Prediccion 
             px= lightgbm_4.predict(df)
             px1=pd.DataFrame(px)
             st.write(px1)
-
-        elif model == 'Lgbm_1':
-             
-            #Prediccion 
-            pc= lightgbm_1.predict(df)
-            pc1=pd.DataFrame(pc)
-            st.write(pc1)
 
         
 
     #Final 
 if __name__ == '__main__':
     main()
+
 
