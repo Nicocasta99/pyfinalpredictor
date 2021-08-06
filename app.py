@@ -17,11 +17,11 @@ st.write("""
     
      **¡Bienvenido a pyprectorop!** 
 
-     podras realizar predicciones acerca de cual sera la proxima ROP para una corrida teniendo en cuenta los 
-     sigueintes parametros: **Profundidad, Carga en el gancho, WOB, torque, Revoluciones por minuto de la broca,
-     Presion de la bomba, flujo de salida, flujo de entrada, Overbalance, diferencia de temperatura, tiempo de rotacion
-     y desgaste de la broca.** Además, podras introducir los datos de forma manual, cargandolos datos mediante un 
-     archivo csv, donde podras predecir mas de una corrida de manera simultanea. 
+     podras realizar predicciones acerca de cual sera la proxima ROP para una corrida teniendo en cuenta los siguientes 
+     parametros: **Profundidad, Carga en el gancho, WOB, torque, Revoluciones por minuto de la broca, Presion de la bomba, 
+     flujo de salida, flujo de entrada, Overbalance, diferencia de temperatura, tiempo de rotacion y desgaste de la broca.** 
+     Además, podras introducir los datos de forma manual, cargandolos mediante un archivo Excel [xlsx], donde podras predecir 
+     mas de una corrida de manera simultanea. 
 
      """)
 
