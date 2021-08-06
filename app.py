@@ -4,40 +4,75 @@ import pickle
 import streamlit as st 
 import joblib
 import sklearn 
-
+import plotly.express as px
 #cargar modelos 
-lightgbm_4=joblib.load("modelo_lgbm_4.pkl")
-lightgbm_1=joblib.load("modelo_lgbm_1.pkl")
 
-#main 
-def main(): 
-    #Titulo del sitio
-    st.title('ROP predictor_ test1')
+lightgbm_8par_d1=joblib.load("modelo_lgbm_4.pkl")
+lightgbm_8par_d2=joblib.load("modelo_lgbm_d2.pkl")
 
-    #Sidebar 
-    st.sidebar.header('Choose parameters')
+  #Titulo del sitio
+st.title('Predictor de Rate of penetration (ROP)')
+    #descripcion del producto 
+st.write("""
+    
+     **¡Bienvenido a pyprectorop!** 
 
+     podras realizar predicciones acerca de cual sera la proxima ROP para una corrida teniendo en cuenta los 
+     sigueintes parametros: **Profundidad, Carga en el gancho, WOB, torque, Revoluciones por minuto de la broca,
+     Presion de la bomba, flujo de salida, flujo de entrada, Overbalance, diferencia de temperatura, tiempo de rotacion
+     y desgaste de la broca.** Además, podras introducir los datos de forma manual, cargandolos datos mediante un 
+     archivo csv, donde podras predecir mas de una corrida de manera simultanea. 
+
+     """)
+
+st.sidebar.title("Datos de entrada")
+#escoger el modelo preferido
+option = ['Desgaste lineal', 'Desgaste Radical']
+model = st.sidebar.selectbox('Escoja un modelo de desgaste:', option)
+    
+st.subheader('Modelo de desgaste aplicado:',model)
+st.write(model)
+
+if model == 'Desgaste lineal':   
+#main para desgaste lineal 
+ def main(): 
+  
     #subir un archivo con los parametros definidos
     st.sidebar.markdown("""
-    [Descargar Archivo csv guia](https://drive.google.com/uc?export=download&id=1n8yA0U909QKQvX9aRDIHMzveZ0GzkhQP)
+    [Descargar Archivo Excel guia](https://drive.google.com/uc?export=download&id=1NZGrbPItrW7ioNZ7jZ4rx7brh5CY64IT)
     """)
     # Collects user input features into dataframe
-    uploaded_file = st.sidebar.file_uploader("Upload your input excel file", type=["csv"])
+    uploaded_file = st.sidebar.file_uploader("Carga tu archivo .xlsx", type=["xlsx"])
+
     if uploaded_file is not None:
-     df1 = pd.read_csv(uploaded_file)
+     df1 = pd.read_excel(uploaded_file)
      df1 = pd.DataFrame(df1)
+
+     st.subheader('Datos que se usaran para el calculo:')
 
      df1=df1[['BIT_DEPTH', 'HKLD', 'WOB', 'TORQUE',
        'BIT_RPM', 'PUMP', 'FLOW_OUT_PC', 'FLOW_IN', 'OVERBALANCE', 'dT',
        'ROT_TIME', 'DESGASTE']]
      st.write(df1)
 
-     if st.button('RUN_2'):
+     if st.button('Launch '):
 
         #Prediccion 
-            pxx= lightgbm_4.predict(df1)
+            pxx= lightgbm_8par_d1.predict(df1)
             px2=pd.DataFrame(pxx)
+            px2.columns = ['Prediction']
+
+            st.subheader('La ROP esperada podria variar en ±0.9 [Ft/hr]:')
             st.write(px2)
+
+            # grafico de plotly
+            
+            import plotly.express as px
+            fig = px.scatter(x=px2["Prediction"],y=df1['BIT_DEPTH'] 
+            ,title='Grafica Profundidad Vs ROP Predicha')
+            st.plotly_chart(fig, use_container_width=True)
+            
+              
 
     else: 
      #funcion para poner los parametros en el sidebar
@@ -46,17 +81,17 @@ def main():
         
  
         #ROP= st.sidebar.slider('ROP', 0.0, 110.3, 3.5)
-        BIT_DEPTH = st.sidebar.slider('depth', 16193, 18487, 16562)
-        HKLD = st.sidebar.slider('Hook Load',295.1, 488.0, 452.6)
-        WOB = st.sidebar.slider('WOB', 0.0, 414.0, 18.6)
-        TORQUE = st.sidebar.slider('Torque', 0.0, 27.0, 14.5)
-        BIT_RPM = st.sidebar.slider('Bit RPM', 0, 1822, 124)
-        PUMP = st.sidebar.slider('Pump', 1010, 4561, 2871)
-        FLOW_OUT_PC = st.sidebar.slider('Flow out', 0.0, 73.0, 34.4)
-        FLOW_IN = st.sidebar.slider('Flow in', 0, 15371, 551)
-        OVERBALANCE = st.sidebar.slider('Overbalance', 2.6, 5.6, 3.9)
-        dT = st.sidebar.slider('Temperture Diference', -70, 92, -28)
-        ROT_TIME = st.sidebar.slider('Rotary Time', 0.0, 147.0, 112.1)
+        BIT_DEPTH = st.sidebar.slider('profundidad (ft)', 16193, 18487, 16562)
+        HKLD = st.sidebar.slider('Hook Load (klbf)',380.0, 488.0, 452.6)
+        WOB = st.sidebar.slider('WOB (klbf)', 0.0, 45.0, 18.6)
+        TORQUE = st.sidebar.slider('Torque (kft.lb)', 0.0, 27.0, 14.5)
+        BIT_RPM = st.sidebar.slider('RPM', 0, 290, 124)
+        PUMP = st.sidebar.slider('Pump (psi)', 1330, 3650, 2871)
+        FLOW_OUT_PC = st.sidebar.slider('Flow out (%)', 0.0, 55.0, 34.4)
+        FLOW_IN = st.sidebar.slider('Flow in (USgal/min)', 0, 700, 551)
+        OVERBALANCE = st.sidebar.slider('Overbalance (psi)', 2.6, 5.6, 3.9)
+        dT = st.sidebar.slider('Temperture Diference (F°)', -10, 92, 28)
+        ROT_TIME = st.sidebar.slider('Rotary Time (hr)', 0.0, 147.0, 112.1)
         DESGASTE = st.sidebar.slider('Desgaste', 0.0, 8.0, 1.6)
         
         data = {#'ROP': ROP,
@@ -78,19 +113,114 @@ def main():
      df = user_input_parameters()
 
      #escritura de parametros seleccionados en la pagina
-     st.subheader('User Input Parameters')
+     st.subheader('Datos que se usaran para el calculo:')
      st.write(df)
-     if st.button('RUN'):
+     if st.button('Launch'):
 
         #Prediccion 
-            px= lightgbm_4.predict(df)
+            px= lightgbm_8par_d1.predict(df)
             px1=pd.DataFrame(px)
-            st.write(px1)
+            pxf= px1.iat[0,0]
+            pxf= round(pxf, 3)
+            st.write('La ROP esperada es de :', pxf, "± 0.9 [ft/hr] ")
 
-        
-
+           
     #Final 
-if __name__ == '__main__':
+ if __name__ == '__main__':
     main()
 
+#desgaste radical lineas de codigo
+elif model == 'Desgaste Radical':
+#main para desgaste lineal 
+ def main(): 
+ 
+    #subir un archivo con los parametros definidos
+    st.sidebar.markdown("""
+    [Descargar Archivo Excel guia](https://drive.google.com/uc?export=download&id=1NZGrbPItrW7ioNZ7jZ4rx7brh5CY64IT)
+    """)
+    # Collects user input features into dataframe
+    uploaded_file = st.sidebar.file_uploader("Carga tu archivo .xlsx", type=["xlsx"])
 
+    if uploaded_file is not None:
+     dfr1 = pd.read_excel(uploaded_file)
+     dfr1 = pd.DataFrame(dfr1)
+
+     st.subheader('Datos que se usaran para el calculo:')
+
+     dfr1=dfr1[['BIT_DEPTH', 'HKLD', 'WOB', 'TORQUE',
+       'BIT_RPM', 'PUMP', 'FLOW_OUT_PC', 'FLOW_IN', 'OVERBALANCE', 'dT',
+       'ROT_TIME', 'DESGASTE']]
+     st.write(dfr1)
+
+     if st.button('Launch '):
+
+        #Prediccion 
+            pxxr= lightgbm_8par_d2.predict(dfr1)
+            pxr2=pd.DataFrame(pxxr)
+            pxr2.columns = ['Prediction']
+
+            st.subheader('La ROP esperada podria variar en ± 0.9 [Ft/hr]:')
+            st.write(pxr2)
+
+            # grafico de plotly
+            
+            import plotly.express as px
+            fig = px.scatter(x=pxr2["Prediction"],y=dfr1['BIT_DEPTH'] 
+            ,title='Grafica Profundidad Vs ROP Predicha')
+            st.plotly_chart(fig, use_container_width=True)
+            
+              
+
+    else: 
+     #funcion para poner los parametros en el sidebar
+     def user_input_parameters_dr():
+
+        #ROP= st.sidebar.slider('ROP', 0.0, 110.3, 3.5)
+        BIT_DEPTH = st.sidebar.slider('profundidad (ft)', 16193, 18487, 16562)
+        HKLD = st.sidebar.slider('Hook Load (klbf)',380.0, 488.0, 452.6)
+        WOB = st.sidebar.slider('WOB (klbf)', 0.0, 45.0, 18.6)
+        TORQUE = st.sidebar.slider('Torque (kft.lb)', 0.0, 27.0, 14.5)
+        BIT_RPM = st.sidebar.slider('RPM', 0, 290, 124)
+        PUMP = st.sidebar.slider('Pump (psi)', 1330, 3650, 2871)
+        FLOW_OUT_PC = st.sidebar.slider('Flow out (%)', 0.0, 55.0, 34.4)
+        FLOW_IN = st.sidebar.slider('Flow in (USgal/min)', 0, 700, 551)
+        OVERBALANCE = st.sidebar.slider('Overbalance (psi)', 2.6, 5.6, 3.9)
+        dT = st.sidebar.slider('Temperture Diference (F°)', -10, 92, 28)
+        ROT_TIME = st.sidebar.slider('Rotary Time (hr)', 0.0, 147.0, 112.1)
+        DESGASTE = st.sidebar.slider('Desgaste', 0.0, 8.0, 1.6)
+        
+        data = {#'ROP': ROP,
+                'BIT_DEPTH': BIT_DEPTH,
+                'HKLD': HKLD,
+                'WOB': WOB,
+                'TORQUE': TORQUE,
+                'BIT_RPM': BIT_RPM,
+                'PUMP': PUMP,
+                'FLOW_OUT_PC': FLOW_OUT_PC,
+                'FLOW_IN': FLOW_IN,
+                'OVERBALANCE': OVERBALANCE,
+                'dT': dT,
+                'ROT_TIME': ROT_TIME,
+                'DESGASTE': DESGASTE,
+                }
+        features = pd.DataFrame(data, index=[0])
+        return features
+     dfr = user_input_parameters_dr()
+
+     #escritura de parametros seleccionados en la pagina
+     st.subheader('Datos que se usaran para el calculo:')
+     st.write(dfr)
+     if st.button('Launch'):
+
+        #Prediccion 
+            pxr= lightgbm_8par_d2.predict(dfr)
+            pxr1=pd.DataFrame(pxr)
+            pxrf= pxr1.iat[0,0]
+            pxrf= round(pxrf, 3)
+            st.write('La ROP esperada es de :', pxrf, "± 0.9 [ft/hr] ")
+
+           
+    #Final 
+ if __name__ == '__main__':
+    main()
+             
