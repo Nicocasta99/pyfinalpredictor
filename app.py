@@ -1,31 +1,34 @@
+
 #Importar librerias 
 import pandas as pd 
 import pickle 
 import streamlit as st 
 import joblib
 import sklearn 
-import plotly.express as px
+
+
 #cargar modelos 
+lightgbm_par_d1=joblib.load("modelo_lgbm_4.pkl")
+lightgbm_par_d2=joblib.load("modelo_lgbm_d2.pkl")
 
-lightgbm_8par_d1=joblib.load("modelo_lgbm_4.pkl")
-lightgbm_8par_d2=joblib.load("modelo_lgbm_d2.pkl")
-
-  #Titulo del sitio
+#Titulo del sitio
 st.title('Predictor de Rate of penetration (ROP)')
-    #descripcion del producto 
+
+#descripcion del aplicativo
 st.write("""
     
-     **¡Bienvenido a pyprectorop!** 
+     **¡Bienvenido a pypredictorop!** 
 
-     podras realizar predicciones acerca de cual sera la proxima ROP para una corrida teniendo en cuenta los siguientes 
-     parametros: **Profundidad, Carga en el gancho, WOB, torque, Revoluciones por minuto de la broca, Presion de la bomba, 
-     flujo de salida, flujo de entrada, Overbalance, diferencia de temperatura, tiempo de rotacion y desgaste de la broca.** 
-     Además, podras introducir los datos de forma manual, cargandolos mediante un archivo Excel [xlsx], donde podras predecir 
-     mas de una corrida de manera simultanea. 
+     Podrás realizar predicciones acerca de cuál será la próxima ROP para una corrida teniendo en cuenta los siguientes 
+     parámetros: **Profundidad, Carga en el gancho, WOB, torque, Revoluciones por minuto de la broca, Presión de la bomba, 
+     flujo de salida, flujo de entrada, Overbalance, diferencia de temperatura, tiempo de rotación y desgaste de la broca.** 
+     Además, podrás introducir los datos de forma manual, cargándolos mediante un archivo Excel [xlsx], donde podrás predecir 
+     más de una corrida de manera simultánea. 
 
      """)
 
 st.sidebar.title("Datos de entrada")
+
 #escoger el modelo preferido
 option = ['Desgaste lineal', 'Desgaste Radical']
 model = st.sidebar.selectbox('Escoja un modelo de desgaste:', option)
@@ -48,7 +51,7 @@ if model == 'Desgaste lineal':
      df1 = pd.read_excel(uploaded_file)
      df1 = pd.DataFrame(df1)
 
-     st.subheader('Datos que se usaran para el calculo:')
+     st.subheader('Datos que se usarán para el cálculo:')
 
      df1=df1[['BIT_DEPTH', 'HKLD', 'WOB', 'TORQUE',
        'BIT_RPM', 'PUMP', 'FLOW_OUT_PC', 'FLOW_IN', 'OVERBALANCE', 'dT',
@@ -58,21 +61,26 @@ if model == 'Desgaste lineal':
      if st.button('Launch '):
 
         #Prediccion 
-            pxx= lightgbm_8par_d1.predict(df1)
+            pxx= lightgbm_par_d1.predict(df1)
             px2=pd.DataFrame(pxx)
             px2.columns = ['Prediction']
 
-            st.subheader('La ROP esperada podria variar en ±0.9 [Ft/hr]:')
+            st.subheader('La ROP esperada podría variar en ±0.9 [Ft/hr]:')
             st.write(px2)
 
-            # grafico de plotly
-            
+            # grafico de matplot
+
             import plotly.express as px
-            fig = px.scatter(x=px2["Prediction"],y=df1['BIT_DEPTH'] 
-            ,title='Grafica Profundidad Vs ROP Predicha')
-            st.plotly_chart(fig, use_container_width=True)
+
+            dfgraf=pd.DataFrame(dict(
+            Predicción=px2["Prediction"],
+            Profundidad=df1['BIT_DEPTH']
+            ))
+
+            fig = px.scatter(dfgraf,x="Predicción",y='Profundidad' 
+            ,title='Gráfica Profundidad Vs ROP Predicha')
             
-              
+            st.plotly_chart(fig, use_container_width=True)
 
     else: 
      #funcion para poner los parametros en el sidebar
@@ -113,12 +121,12 @@ if model == 'Desgaste lineal':
      df = user_input_parameters()
 
      #escritura de parametros seleccionados en la pagina
-     st.subheader('Datos que se usaran para el calculo:')
+     st.subheader('Datos que se usarán para el cálculo:')
      st.write(df)
      if st.button('Launch'):
 
         #Prediccion 
-            px= lightgbm_8par_d1.predict(df)
+            px= lightgbm_par_d1.predict(df)
             px1=pd.DataFrame(px)
             pxf= px1.iat[0,0]
             pxf= round(pxf, 3)
@@ -145,7 +153,7 @@ elif model == 'Desgaste Radical':
      dfr1 = pd.read_excel(uploaded_file)
      dfr1 = pd.DataFrame(dfr1)
 
-     st.subheader('Datos que se usaran para el calculo:')
+     st.subheader('Datos que se usarán para el cálculo:')
 
      dfr1=dfr1[['BIT_DEPTH', 'HKLD', 'WOB', 'TORQUE',
        'BIT_RPM', 'PUMP', 'FLOW_OUT_PC', 'FLOW_IN', 'OVERBALANCE', 'dT',
@@ -155,18 +163,25 @@ elif model == 'Desgaste Radical':
      if st.button('Launch '):
 
         #Prediccion 
-            pxxr= lightgbm_8par_d2.predict(dfr1)
+            pxxr= lightgbm_par_d2.predict(dfr1)
             pxr2=pd.DataFrame(pxxr)
             pxr2.columns = ['Prediction']
 
-            st.subheader('La ROP esperada podria variar en ± 0.9 [Ft/hr]:')
+            st.subheader('La ROP esperada podría variar en ± 0.9 [Ft/hr]:')
             st.write(pxr2)
 
             # grafico de plotly
             
             import plotly.express as px
-            fig = px.scatter(x=pxr2["Prediction"],y=dfr1['BIT_DEPTH'] 
-            ,title='Grafica Profundidad Vs ROP Predicha')
+
+            dfgraf=pd.DataFrame(dict(
+            Predicción=pxr2["Prediction"],
+            Profundidad=dfr1['BIT_DEPTH']
+            ))
+
+            fig = px.scatter(dfgraf,x="Predicción",y='Profundidad' 
+            ,title='Gráfica Profundidad Vs ROP Predicha')
+            
             st.plotly_chart(fig, use_container_width=True)
             
               
@@ -208,12 +223,12 @@ elif model == 'Desgaste Radical':
      dfr = user_input_parameters_dr()
 
      #escritura de parametros seleccionados en la pagina
-     st.subheader('Datos que se usaran para el calculo:')
+     st.subheader('Datos que se usarán para el cálculo:')
      st.write(dfr)
      if st.button('Launch'):
 
         #Prediccion 
-            pxr= lightgbm_8par_d2.predict(dfr)
+            pxr= lightgbm_par_d2.predict(dfr)
             pxr1=pd.DataFrame(pxr)
             pxrf= pxr1.iat[0,0]
             pxrf= round(pxrf, 3)
