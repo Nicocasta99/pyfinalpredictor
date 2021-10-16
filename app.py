@@ -73,12 +73,12 @@ if model == 'Desgaste lineal':
             import plotly.express as px
 
             dfgraf=pd.DataFrame(dict(
-            Predicción=px2["Prediction"],
-            Profundidad=df1['BIT_DEPTH']
+            ROP_ft_hr=px2["Prediction"],
+            Profundidad_ft=df1['BIT_DEPTH']
             ))
 
-            fig = px.scatter(dfgraf,x="Predicción",y='Profundidad' 
-            ,title='Gráfica Profundidad Vs ROP Predicha')
+            fig = px.scatter(dfgraf,x="ROP_ft_hr",y='Profundidad_ft' 
+            ,title='Gráfica Profundidad (ft) Vs ROP Predicha (ft/hr)')
             
             st.plotly_chart(fig, use_container_width=True)
 
@@ -97,7 +97,7 @@ if model == 'Desgaste lineal':
         PUMP = st.sidebar.slider('Pump (psi)', 1330, 3650, 2871)
         FLOW_OUT_PC = st.sidebar.slider('Flow out (%)', 0.0, 55.0, 34.4)
         FLOW_IN = st.sidebar.slider('Flow in (USgal/min)', 0, 700, 551)
-        OVERBALANCE = st.sidebar.slider('Overbalance (psi)', 2.6, 5.6, 3.9)
+        OVERBALANCE = st.sidebar.slider('Overbalance (ppg)', 2.6, 5.6, 3.9)
         dT = st.sidebar.slider('Temperture Diference (F°)', -10, 92, 28)
         ROT_TIME = st.sidebar.slider('Rotary Time (hr)', 0.0, 147.0, 112.1)
         DESGASTE = st.sidebar.slider('Desgaste', 0.0, 8.0, 1.6)
@@ -175,12 +175,12 @@ elif model == 'Desgaste Radical':
             import plotly.express as px
 
             dfgraf=pd.DataFrame(dict(
-            Predicción=pxr2["Prediction"],
-            Profundidad=dfr1['BIT_DEPTH']
+            ROP_ft_hr =pxr2["Prediction"],
+            Profundidad_ft =dfr1['BIT_DEPTH']
             ))
 
-            fig = px.scatter(dfgraf,x="Predicción",y='Profundidad' 
-            ,title='Gráfica Profundidad Vs ROP Predicha')
+            fig = px.scatter(dfgraf,x="ROP_ft_hr",y='Profundidad_ft' 
+            ,title='Gráfica Profundidad (ft) Vs ROP Predicha (ft/hr)')
             
             st.plotly_chart(fig, use_container_width=True)
             
@@ -199,7 +199,7 @@ elif model == 'Desgaste Radical':
         PUMP = st.sidebar.slider('Pump (psi)', 1330, 3650, 2871)
         FLOW_OUT_PC = st.sidebar.slider('Flow out (%)', 0.0, 55.0, 34.4)
         FLOW_IN = st.sidebar.slider('Flow in (USgal/min)', 0, 700, 551)
-        OVERBALANCE = st.sidebar.slider('Overbalance (psi)', 2.6, 5.6, 3.9)
+        OVERBALANCE = st.sidebar.slider('Overbalance (ppg)', 2.6, 5.6, 3.9)
         dT = st.sidebar.slider('Temperture Diference (F°)', -10, 92, 28)
         ROT_TIME = st.sidebar.slider('Rotary Time (hr)', 0.0, 147.0, 112.1)
         DESGASTE = st.sidebar.slider('Desgaste', 0.0, 8.0, 1.6)
